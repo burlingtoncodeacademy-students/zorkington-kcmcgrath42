@@ -17,7 +17,7 @@ function ask(questionText) {
 let entrance = {
     name: "entrance",
     description: "welcome to the entrance, there is a sign on the door",
-    sign:"go to the starting room on the third floor",
+    sign:"go to the starting room on the third floor.  The door to the Foyer is locked.  The code is 123",
     allowedPlaces:['starting room'],
     lockState:1,
     code: '123',
@@ -37,8 +37,9 @@ let foyer = {
     name: "foyer",
     description: "You enter the foyer, there's a magazine on the table. The dining room is to the right, the living room is to the left",
     allowedPlaces:['dining room','living room'],
-    lockState:1,
+    lockState:0,
     code: '123',
+    magazine: 'the code to the dining room is 123',
     inventory:['magazine'],
     fixedItems: []  
   }
@@ -46,7 +47,7 @@ let diningRoom = {
     name: "dining room",
     description: "You enter the dining room,Renoir's BAL DU MOULIN DE LA GALETTE is hanging on the wall. The kitchen is ahead of you",
     allowedPlaces:['foyer','kitchen'],
-    lockState:1,
+    lockState:0,
     code: '123',
     inventory:['hope diamond'],
     fixedItems: ['painting']  
@@ -66,14 +67,14 @@ let livingRoom = {
     allowedPlaces:['foyer', 'kitchen'],
     lockState:1,
     code: '123',
-    inventory:['knife'],
+    inventory:['knife','note'],
     fixedItems: ['couch'],
     note: "the maid did it!"  
   }
 //defining room array to provde a link between a string value entered in an await and the room objects
 let rooms = [entrance, startingRoom, foyer, diningRoom, kitchen, livingRoom];
 //initializing an empty player array you can add to with a take command
-let playerInventory = [];
+let playerInventory = ['fruit juice'];
 
 //functions
 //changeTo function moves rooms and accepts a room name (place)
@@ -123,6 +124,15 @@ let playerInventory = [];
     } else console.log("there isn't a " + item + " in " + currentLocal.name)
   }
   
+  //drop function that removes the specified item from the player inventory and
+  //adds it to the room inventory
+function drop(item) {
+  currentLocal.inventory.push(item);
+  playerInventory.splice(playerInventory.indexOf(item),1);
+  console.log(currentLocal.name + "inventory: " + currentLocal.inventory);
+  console.log("player inventory: " + playerInventory);
+}
+
   //functions for checking the room and player inventories 
     function checkInventory() {
       console.log(currentLocal.name + "inventory: " + currentLocal.inventory)
@@ -155,9 +165,6 @@ async function start() {
 
 console.log(currentLocal.description)
 
-//make a series of if statements for different functions
-//if enter read sign, go to the read portion, perform read(sign)
-
 let ans = null;
 
 //entire game happens in this while loop and keeps running until you enter bye
@@ -173,7 +180,7 @@ let noun = ans.split(' ').slice(1).join(' ')
 
 //if the first word is 'read', the if statement checks if the current room has a keyname
 //that matches the specified noun.  if yes, call the read function to print the property of the
-//specified keyname.  else: if the current room doesn't have a keyname that matches the noun
+//specified keyname.  else: the current room doesn't have a keyname that matches the noun
   if (verb === 'read'){
     if (Object.keys(currentLocal).includes(noun)){  
       read(noun)
@@ -199,6 +206,12 @@ let noun = ans.split(' ').slice(1).join(' ')
 //when the first word the user enters is take and passes the noun as the item to take
   else if (verb === 'take'){
   take(noun)
+}
+
+//this calls the drop function to drop an item from the player inventory and add it to the current room inventory
+//when the first word the user enters is drop and passes the noun as the item to drop
+  else if (verb === 'drop'){
+  drop(noun)
 }
 //this checks the room or player inventory.  As with the code entry, kept it
 //simple by asking for the inventory of interest in a second await ask
